@@ -1,15 +1,17 @@
 import { ComponentExample } from "@/components/component-example";
 import StlViewer from "@/components/stl-viewer";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { env } from "process";
 
 export default function Page() {
+    const host = env.REACT_APP_HOST;
     return (
         <div >
             <div className="w-full flex flex-row flex-wrap gap-4 p-8">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(element => (
                     <Card key={element} className="w-64">
-                        <StlViewer url="http://localhost:3000/test.stl" className="bg-card m-auto w-full aspect-square" />
+                        <StlViewer url={"https://" + host + "/test.stl"} className="bg-card m-auto w-full aspect-square" />
                         <CardHeader>
                             <CardTitle>Magnetic Pisa Tower</CardTitle>
                             <CardDescription className="flex justify-between"><span>D&D Dice holder</span><span>113/254g</span></CardDescription>
@@ -28,7 +30,7 @@ export default function Page() {
             </div>
             <ComponentExample />
             <ComponentExample />
-            <StlViewer url="http://localhost:3000/test.stl" className="w-52 h-52 m-auto" />
+            <StlViewer url={"https://" + host + "/test.stl"} className="w-52 h-52 m-auto" />
         </div>
     );
 }

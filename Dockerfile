@@ -1,8 +1,8 @@
 ARG Node_Version=25
-FROM node:${Node_Version} AS base
+FROM node:${Node_Version}-alpine AS base
 
 FROM base AS deps
-RUN apt-get update && apt-get install -y libc6-compat && apt-get autoremove && apt-get clean
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -30,5 +30,5 @@ EXPOSE 3000
 ENV PORT=3000
 
 ENV HOSTNAME="0.0.0.0"
-ENTRYPOINT [ "bash" ]
+ENTRYPOINT [ "sh" ]
 CMD ["node", "server.js"]

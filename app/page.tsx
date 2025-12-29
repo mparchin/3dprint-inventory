@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { env } from "process";
 
 export default function Page() {
-    const host = env.REACT_APP_HOST;
+    // const host = env.REACT_APP_HOST;
+    const host = "inventory.ho.me";
     return (
         <div >
             <div className="w-full flex flex-row flex-wrap gap-4 p-8">

@@ -28,9 +28,9 @@ export default function Page() {
                 ))}
                 {/* <div className="grow"></div> */}
             </div>
-            <ComponentExample />
-            <ComponentExample />
-            <StlViewer url={"https://" + host + "/test.stl"} className="w-52 h-52 m-auto" />
+            {/* <ComponentExample />
+            <ComponentExample /> */}
+            {/* <StlViewer url={"https://" + host + "/test.stl"} className="w-52 h-52 m-auto" /> */}
         </div>
     );
 }

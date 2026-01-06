@@ -2,6 +2,8 @@ import { BanknoteArrowDown, BanknoteArrowUp, Boxes, BoxIcon, ChevronRight, Hands
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import DarkThemeButton from "./dark-theme-button";
+import Link from "next/link";
 
 
 const menuItems = [
@@ -85,7 +87,7 @@ export default function AppSideBar() {
                         <SidebarMenuItem>
                             <CollapsibleTrigger asChild>
                                 <SidebarMenuButton asChild>
-                                    <a href="#">
+                                    <Link href="/">
                                         <Tooltip>
                                             <TooltipTrigger>
                                                 <BoxIcon className="text-primary" />
@@ -96,7 +98,7 @@ export default function AppSideBar() {
                                         </Tooltip>
                                         <span>Models</span>
                                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </CollapsibleTrigger>
                             <CollapsibleContent>
@@ -146,6 +148,11 @@ export default function AppSideBar() {
             </SidebarContent>
             <SidebarFooter className="border-t">
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <DarkThemeButton />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                             <a href="/">

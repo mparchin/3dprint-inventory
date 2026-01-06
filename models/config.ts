@@ -1,3 +1,4 @@
-export class Config {
-    frontHost: string = "";
+export interface Config {
+    frontHost: string;
+    backHost: string;
 }

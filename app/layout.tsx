@@ -3,10 +3,8 @@ import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSideBar from "@/components/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Separator } from "@base-ui/react";
 import { ThemeProvider } from "@/components/theme-provider";
-import DarkThemeButton from "@/components/dark-theme-button";
+import Toolbar from "@/components/toolbar"
 
 const nunitoSans = Nunito_Sans({ variable: '--font-sans' });
 
@@ -44,26 +42,7 @@ export default function RootLayout({
           <SidebarProvider className="pt-2 pb-2 pr-2" defaultOpen={false}>
             <AppSideBar />
             <SidebarInset className="pb-2">
-              <div className="w-full inline-flex border-b pt-1 pb-1">
-                <SidebarTrigger className="ml-2" />
-                <Separator orientation="vertical" className="mx-2 mt-1 mb-1 data-[orientation=vertical]:h-6 w-[1] bg-sidebar-border" />
-                <Breadcrumb className="flex-1 p-1.5">
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Components</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-                <DarkThemeButton />
-              </div>
+              <Toolbar />
               {children}
             </SidebarInset>
           </SidebarProvider>

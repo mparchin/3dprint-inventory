@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
 module.exports = {
   // ... rest of the configuration.
   output: "standalone",
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    }
+  }
 };
 
 export default nextConfig;

@@ -4,6 +4,7 @@ import { Config } from "@/models/config"
 
 export default async function getConfig(): Promise<Config> {
     return Promise.resolve({
-        frontHost: process.env.Front_Host
+        frontHost: process.env.Front_Host,
+        backHost: process.env.Back_Host,
     } as Config);
 }

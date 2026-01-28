@@ -12,7 +12,7 @@ import { Badge } from "./ui/badge";
 export default function ComboBoxTags(
     {
         list,
-        values,
+        defaultValues,
         placeholder,
         id,
         name,
@@ -22,7 +22,7 @@ export default function ComboBoxTags(
             id: number
             name: string
         }[],
-        values?: {
+        defaultValues?: {
             id: number,
             name: string
         }[],
@@ -32,7 +32,7 @@ export default function ComboBoxTags(
         innerClassname?: string
     }) {
     const [open, setOpen] = useState(false);
-    const [selectedValues, setValue] = useState(values);
+    const [selectedValues, setValue] = useState(defaultValues);
     const [currentList, setList] = useState(list);
     const searchRef = useRef<HTMLInputElement>(null!);
     return (
@@ -66,7 +66,7 @@ export default function ComboBoxTags(
             <PopoverContent className={innerClassname}>
                 <Command>
                     <CommandInput ref={searchRef} onKeyDown={(e) => {
-                        if (e.key == "Enter") {
+                        if (e.key == "Enter" && searchRef.current.value.trim() != "") {
                             var possibleValue = currentList.find(l => l.name == searchRef.current.value);
                             if (possibleValue) {
                                 if (selectedValues?.find(v => v.name === possibleValue?.name)) {

@@ -11,27 +11,29 @@ import { Input } from "./ui/input";
 export default function ComboBox(
     {
         list,
-        value,
+        defaultValue,
         placeholder,
         id,
         name,
         innerClassname,
+        disableNew
     }: {
         list: {
             id: number
             name: string
         }[],
-        value?: {
+        defaultValue?: {
             id: number,
             name: string
         },
         placeholder?: string
         id?: string
         name?: string
-        innerClassname?: string
+        innerClassname?: string;
+        disableNew?: boolean
     }) {
     const [open, setOpen] = useState(false);
-    const [selectedValue, setValue] = useState(value);
+    const [selectedValue, setValue] = useState(defaultValue);
     const [currentList, setList] = useState(list);
     const searchRef = useRef<HTMLInputElement>(null!);
     return (
@@ -53,17 +55,18 @@ export default function ComboBox(
                     <Input type="hidden" name={`${name}-id`} value={selectedValue?.id ?? ""} />
                     <Input type="hidden" name={`${name}-name`} value={selectedValue?.name ?? ""} />
 
+
                 </Button>
             </PopoverTrigger>
             <PopoverContent className={innerClassname}>
                 <Command>
                     <CommandInput ref={searchRef} onKeyDown={(e) => {
-                        if (e.key == "Enter") {
+                        if (e.key == "Enter" && searchRef.current.value.trim() != "") {
                             var possibleValue = currentList.find(l => l.name == searchRef.current.value);
                             if (possibleValue) {
                                 setValue(possibleValue);
                             }
-                            else {
+                            else if (!disableNew) {
                                 var newList = currentList.slice();
                                 var newValue = {
                                     id: 0,
@@ -75,9 +78,9 @@ export default function ComboBox(
                             }
                             setOpen(false);
                         }
-                    }} placeholder="Search or add" className="h-9" />
+                    }} placeholder={`Search ${disableNew ? "..." : "or add"}`} className="h-9" />
                     <CommandList>
-                        <CommandEmpty>Press Enter to add</CommandEmpty>
+                        <CommandEmpty> {disableNew ? "Not found" : "Press Enter to add"}</CommandEmpty>
                         <CommandGroup>
                             {currentList.map((l) => (
                                 <CommandItem

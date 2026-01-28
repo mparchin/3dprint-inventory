@@ -16,15 +16,18 @@ import axios, { AxiosProgressEvent } from "axios";
 export default function FileUploader({
     id,
     name,
-    config
+    config,
+    files,
+    lowestSpoolCostPerG
 }: {
     id?: string;
     name: string;
-    config: Config
+    config: Config;
+    files?: TempFile[],
+    lowestSpoolCostPerG: number
 }) {
-    const lowestSpoolCostPerG = 1200 / 1000;
     const ref = useRef<HTMLInputElement>(null!);
-    const [tempFiles, setTempFiles] = useState<TempFile[]>([]);
+    const [tempFiles, setTempFiles] = useState<TempFile[]>(files ?? []);
     useEffect(() => {
         for (let i = 0; i < tempFiles.length; i++) {
             if (tempFiles[i] == undefined || tempFiles[i].progress != 0)
@@ -34,9 +37,10 @@ export default function FileUploader({
                 name: f.name,
                 path: f.path,
                 progress: 1,
-                url: f.url,
                 size: f.size,
-                inputFileIndex: f.inputFileIndex
+                inputFileIndex: f.inputFileIndex,
+                fileId: f.fileId,
+                url: f.url
             } : f));
             const formData = new FormData();
             const index = tempFiles[i].inputFileIndex;
@@ -50,36 +54,39 @@ export default function FileUploader({
                             name: f.name,
                             path: f.path,
                             progress: progress,
-                            url: f.url,
                             size: f.size,
-                            inputFileIndex: f.inputFileIndex
+                            inputFileIndex: f.inputFileIndex,
+                            fileId: f.fileId,
+                            url: f.url
                         } : f));
                     };
                 }
             }).then(response => {
                 const newModel = response.data as TempFile[];
-                console.log(newModel);
                 if (tempFiles[i]) {
                     setTempFiles(old => old.map((f, index) => index == i ? {
                         name: f.name,
                         path: newModel[0].path,
                         progress: 100,
-                        url: newModel[0].url,
                         size: f.size,
                         inputFileIndex: f.inputFileIndex,
                         fileType: {
                             fileTypeId: newModel[0].fileType!.fileTypeId,
                             name: newModel[0].fileType!.name
-                        }
+                        },
+                        fileId: f.fileId,
+                        url: newModel[0].url
                     } : f))
                 }
             })
         }
         ref.current.value = "";
     }, [tempFiles.length]);
+
     const handleDelete = (model?: TempFile) => {
         setTempFiles(old => old.filter((f) => f.name !== model?.name));
     };
+
     const handleUpload = () => {
         const filesCount = ref.current.files?.length ?? 0;
         if (filesCount > 0) {
@@ -90,25 +97,28 @@ export default function FileUploader({
                     progress: 0,
                     url: "",
                     size: ref.current.files!.item(i)!.size,
-                    inputFileIndex: i
+                    inputFileIndex: i,
+                    fileId: 0
                 }]);
             }
         } else {
             ref.current.click();
         }
     };
+
     return (
         <div className="border rounded-2xl p-2">
             <div className="mb-4 sm:grid grid-cols-2">
                 {tempFiles.map((file, index) =>
                     file.progress != 100
-                        ? <InProgressFile key={file.name} model={file} onDelete={handleDelete} />
+                        ? <InProgressFile key={file.name} name={`${name}-${index}`} model={file} onDelete={handleDelete} />
                         : file.fileType?.name === "STL" ? <STLFile key={file.name} name={`${name}-${index}`} model={file} onDelete={handleDelete} lowestSpoolCostPerG={lowestSpoolCostPerG} />
                             : file.fileType?.name === "Image" ? <ImageFile key={file.name} name={`${name}-${index}`} model={file} onDelete={handleDelete} />
                                 : <OtherTypeFile key={file.name} name={`${name}-${index}`} model={file} onDelete={handleDelete} />
                 )}
             </div>
             <div className="flex flex-row gap-2">
+                <Input type="hidden" name={`${name}-count`} value={tempFiles.length} />
                 <Input id={id} type="file" ref={ref} className="cursor-pointer" multiple />
                 <Button variant={"default"} size={"icon"} type="button" onClick={handleUpload}><Upload /></Button>
             </div>
@@ -129,9 +139,11 @@ function RemoveButton({
 }
 
 function InProgressFile({
+    name,
     model,
     onDelete,
 }: {
+    name: string;
     model?: TempFile;
     onDelete?: (model?: TempFile) => void;
 }) {
@@ -141,6 +153,7 @@ function InProgressFile({
             <RemoveButton onClick={handleClick} />
             <div className="w-full h-full col-span-12 row-span-12 row-start-1 col-start-1 z-0 flex flex-col p-3 justify-around">
                 <Progress className="" value={model?.progress} />
+                <DefaultInputs name={name} model={model} isValid={false} />
             </div>
         </div>
     );
@@ -161,7 +174,7 @@ function OtherTypeFile({
             <RemoveButton onClick={handleClick} />
             <div className="w-full col-span-12 row-span-12 row-start-1 col-start-1 z-0 flex flex-col gap-2 p-4">
                 <p className="grow wrap-break-word">{model?.name}</p>
-                <Input type="hidden" name={name} value={model?.path} />
+                <DefaultInputs name={name} model={model} />
             </div>
         </div>
     );
@@ -184,11 +197,11 @@ function STLFile({
             <RemoveButton onClick={handleClick} />
             <div className="w-full col-span-12 row-span-12 row-start-1 col-start-1 z-0 flex flex-col gap-2 p-4">
                 <p className="grow wrap-break-word">{model?.name}</p>
-                <Input type="hidden" name={name} value={model?.path} />
+                <DefaultInputs name={name} model={model} />
                 <Field orientation={"horizontal"}>
                     <FieldLabel htmlFor="grams">Weight:</FieldLabel>
                     <InputGroup>
-                        <InputGroupInput id="grams" name={`${name}-grams`} type="number" placeholder="32" />
+                        <InputGroupInput id="grams" name={`${name}-grams`} type="number" defaultValue={model?.weight} placeholder="32" required />
                         <InputGroupAddon align={"inline-end"}>
                             <Tooltip>
                                 <TooltipTrigger type="button">
@@ -204,7 +217,7 @@ function STLFile({
                 <Field orientation={"horizontal"}>
                     <FieldLabel htmlFor="repeats">Repeatations:</FieldLabel>
                     <InputGroup>
-                        <InputGroupInput id="repeats" name={`${name}-repeats`} type="number" placeholder="1" defaultValue={"1"} />
+                        <InputGroupInput id="repeats" name={`${name}-repeats`} type="number" placeholder="1" defaultValue={model?.repeatations ?? 1} required />
                         <InputGroupAddon align={"inline-end"}>
                             <Tooltip>
                                 <TooltipTrigger type="button">
@@ -220,7 +233,7 @@ function STLFile({
                 <Field orientation={"horizontal"}>
                     <FieldLabel htmlFor="elec">Electricity:</FieldLabel>
                     <InputGroup>
-                        <InputGroupInput id="elec" name={`${name}-elec`} type="number" placeholder="12" />
+                        <InputGroupInput id="elec" name={`${name}-elec`} type="number" defaultValue={model?.electricityCostg} placeholder="12" />
                         <InputGroupAddon align={"inline-end"}>
                             <Tooltip>
                                 <TooltipTrigger type="button">
@@ -233,7 +246,10 @@ function STLFile({
                         </InputGroupAddon>
                     </InputGroup>
                 </Field>
-                <PrintTimePicker name={name} />
+                <PrintTimePicker name={name} initValue={model?.printTime ? ({
+                    hours: Number(model.printTime.substring(0, model.printTime.indexOf(':'))),
+                    minutes: Number(model.printTime.substring(model.printTime.indexOf(':') + 1, model.printTime.indexOf(':') + 3))
+                }) : undefined} />
             </div>
         </div>
     );
@@ -250,10 +266,29 @@ function ImageFile({
 }) {
     const handleClick = onDelete ? () => onDelete(model) : undefined;
     return (
-        <div className="sm:w-48 w-72 aspect-square grid grid-cols-12 grid-rows-12 bg-sidebar rounded-2xl ml-auto mr-auto mb-2">
+        <div className="sm:w-48 w-72 grid grid-cols-12 grid-rows-12 bg-sidebar rounded-2xl ml-auto mr-auto mb-2">
             <RemoveButton onClick={handleClick} />
-            <Input type="hidden" name={name} value={model?.path} />
-            <div className="w-full bg-purple-500 col-span-12 row-span-12 row-start-1 col-start-1 z-0 flex flex-col gap-2 p-3 rounded-2xl"></div>
+            <DefaultInputs name={name} model={model} />
+            <img src={model?.url} alt={model?.name} className="col-span-12 row-span-12 row-start-1 col-start-1 z-0 rounded-2xl m-auto" />
         </div>
     );
+}
+
+function DefaultInputs({
+    name,
+    model,
+    isValid = true,
+}: {
+    name: string;
+    model?: TempFile;
+    isValid?: boolean
+}) {
+    return (<>
+        <Input type="hidden" name={`${name}-valid`} value={isValid ? 1 : 0} />
+        <Input type="hidden" name={name} value={model?.path ?? ""} />
+        <Input type="hidden" name={`${name}-id`} value={model?.fileId ?? 0} />
+        <Input type="hidden" name={`${name}-type-id`} value={model?.fileType?.fileTypeId ?? 1} />
+        <Input type="hidden" name={`${name}-type-name`} value={model?.fileType?.name ?? ""} />
+        <Input type="hidden" name={`${name}-size`} value={model?.size ?? 1} />
+    </>);
 }

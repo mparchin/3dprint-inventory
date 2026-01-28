@@ -2,15 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  transpilePackages: ['three'],
-};
-
-module.exports = {
-  // ... rest of the configuration.
   output: "standalone",
+  cacheComponents: true,
+  transpilePackages: ['three'],
   experimental: {
     serverActions: {
-      bodySizeLimit: '100mb',
+      bodySizeLimit: '100mb'
     }
   }
 };

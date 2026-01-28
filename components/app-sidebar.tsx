@@ -1,9 +1,13 @@
-import { BanknoteArrowDown, BanknoteArrowUp, Boxes, BoxIcon, ChevronRight, Handshake, History, Locate, LogOut, PiggyBank, Printer, Settings, Spool, User } from "lucide-react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from "./ui/sidebar";
+"use client"
+import { BanknoteArrowDown, BanknoteArrowUp, Boxes, BoxIcon, ChevronRight, FolderOpen, Handshake, History, Locate, LogOut, PiggyBank, Printer, Settings, Spool, Tags, User } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import DarkThemeButton from "./dark-theme-button";
 import Link from "next/link";
+import { Category } from "@/models/category";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 
 const menuItems = [
@@ -15,9 +19,21 @@ const menuItems = [
     },
     {
         title: "Spools",
-        link: "#",
+        link: "/spools",
         parnet: "Inventory",
         icon: Spool
+    },
+    {
+        title: "Categories",
+        link: "/categories",
+        parnet: "Inventory",
+        icon: FolderOpen
+    },
+    {
+        title: "Tags",
+        link: "/tags",
+        parnet: "Inventory",
+        icon: Tags
     },
     {
         title: "Locations",
@@ -27,7 +43,7 @@ const menuItems = [
     },
     {
         title: "Print",
-        link: "#",
+        link: "/print",
         parnet: "Manufacture",
         icon: Printer
     },
@@ -63,22 +79,16 @@ const menuItems = [
     },
 ];
 
-const modelCats = [
-    {
-        title: "cat1",
-        link: "#"
-    },
-    {
-        title: "cat2",
-        link: "#"
-    },
-    {
-        title: "cat3",
-        link: "#"
-    },
-];
-
-export default function AppSideBar() {
+export default function AppSideBar({
+    cats
+}: {
+    cats: Category[];
+}) {
+    const path = usePathname();
+    const catsList = cats.map(c => ({
+        title: c.name,
+        link: `/models/${c.name}/`
+    }));
     return (
         <Sidebar variant="inset" collapsible="icon">
             <SidebarHeader className="pt-3">
@@ -90,7 +100,9 @@ export default function AppSideBar() {
                                     <Link href="/">
                                         <Tooltip>
                                             <TooltipTrigger>
-                                                <BoxIcon className="text-primary" />
+                                                <BoxIcon className={cn(path == "/" || path.startsWith("/models")
+                                                    ? "text-primary"
+                                                    : "", "cursor-pointer")} />
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 Models
@@ -103,12 +115,12 @@ export default function AppSideBar() {
                             </CollapsibleTrigger>
                             <CollapsibleContent>
                                 <SidebarMenuSub>
-                                    {modelCats.map(cat => (
-                                        <SidebarMenuSubItem key={cat.title}>
-                                            <a href={cat.link}>
+                                    {catsList.map(cat => (
+                                        <SidebarMenuSubButton key={cat.title} asChild>
+                                            <Link href={cat.link}>
                                                 {cat.title}
-                                            </a>
-                                        </SidebarMenuSubItem>
+                                            </Link>
+                                        </SidebarMenuSubButton>
                                     ))}
                                 </SidebarMenuSub>
                             </CollapsibleContent>
@@ -128,8 +140,8 @@ export default function AppSideBar() {
                                             <a href={item.link}>
                                                 {item.icon != null ? (
                                                     <Tooltip>
-                                                        <TooltipTrigger>
-                                                            <item.icon />
+                                                        <TooltipTrigger className="cursor-pointer">
+                                                            <item.icon className={path.startsWith(item.link) ? "text-primary" : ""} />
                                                         </TooltipTrigger>
                                                         <TooltipContent>
                                                             {item.title}

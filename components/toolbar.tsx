@@ -7,6 +7,7 @@ import { Archive, Plus } from "lucide-react";
 import Link from "next/link";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 
 export default function toolbar({
     handleDeleteModel
@@ -96,9 +97,26 @@ export default function toolbar({
                 </Link>
             )
                 : path.startsWith("/models/") && Number(params.id) > 0 ? (
-                    <Button size={"icon"} type="button" className="mr-2 cursor-pointer" variant={"destructive"} onClick={handleDelete}>
-                        <Archive />
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button size={"icon"} type="button" className="mr-2 cursor-pointer" variant={"destructive"}>
+                                <Archive />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent size="sm">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will delete
+                                    the model.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel className="cursor-pointer" onClick={handleDelete}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="cursor-pointer" variant={"destructive"}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 )
                     : (<></>)}
         </div>
